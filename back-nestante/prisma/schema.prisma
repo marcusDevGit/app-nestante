@@ -18,3 +18,10 @@ model User {
   email     String  @unique
   password  String
 }
+model Tarefa {
+  id          Int      @id @default(autoincrement())
+  nome        String
+  descricao   String?
+  status      String?
+  data_criacao DateTime @default(now())
+}
