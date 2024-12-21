@@ -21,6 +21,8 @@ model Usuario {
   criadoEm    DateTime  @default(now())
   atualizadoEm DateTime @updatedAt
   tarefas     Tarefa[]  @relation("UsuarioTarefas")
+  resetToken String?
+  resetExpires DateTime?
 }
 
 model Tarefa {
