@@ -1,6 +1,7 @@
 const prisma = require("../config/database");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { sendEmail } = require("../utils/email");
 
 // Criação de usuário
 const createUser = async (req, res) => {
@@ -76,5 +77,84 @@ const loginUser = async (req, res) => {
     }
 };
 
-module.exports = { createUser, getUsers, loginUser };
+
+
+// Solicitação de recuperação de senha
+const requestPasswordReset = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        console.log("iniciado processo de recuperação de senha para", email);
+        const usuario = await prisma.usuario.findUnique({ where: { email } });
+        if (!usuario) {
+            console.log("Usuário não encontrado", email);
+            return res.status(404).json({ error: "Usuário não encontrado." });
+        }
+
+        // Gerar token único e expirável
+        const resetToken = await bcryptjs.hash(email + Date.now(), 10);// combina email e timestamp
+        const resetExpires = new Date(Date.now() + 3600000); // 1 hora de validade
+
+        // Atualizar o usuário no banco
+        await prisma.usuario.update({
+            where: { email },
+            data: { resetToken, resetExpires },
+        });
+
+        // link para redefinir a senha
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${encodeURIComponent(resetToken)}`;
+        console.log("Link para redefinir senha:", resetLink);
+        //Enviar e-mail de recuperação
+        await sendEmail(
+            email,
+            "Recuperação de Senha",
+            `Você solicitou a recuperação de senha. Use o link abaixo para redefinir sua senha. O link expira em 1 hora.\n\n${resetLink}`
+        );
+
+        res.status(200).json({ message: "E-mail de recuperação enviado com sucesso!" });
+    } catch (error) {
+        console.error("Erro ao processar recuperação de senha:", error);
+        res.status(500).json({ error: "Erro ao processar recuperação de senha." });
+    }
+};
+
+// Redefinir senha
+const resetPassword = async (req, res) => {
+    const { token, novaSenha } = req.body;
+
+    try {
+        console.log("Redefinir senha com token", token);
+        // Encontrar usuário pelo token
+        const usuario = await prisma.usuario.findFirst({
+            where: {
+                resetToken: { not: null },
+                resetExpires: { gt: new Date() }
+            },
+        });
+
+        if (!usuario) {
+            console.log("Token inválido ou expirado", token);
+            return res.status(400).json({ error: "Token inválido ou expirado." });
+        }
+
+        // Atualizar senha e limpar token
+        const senhaHash = await bcryptjs.hashSync(novaSenha, 10);
+
+        await prisma.usuario.update({
+            where: { id: usuario.id },
+            data: { senha: senhaHash, resetToken: null, resetExpires: null },
+        });
+
+        res.status(200).json({ message: "Senha redefinida com sucesso!" });
+    } catch (error) {
+        console.error("Erro ao redefinir senha:", error);
+        res.status(500).json({ error: "Erro ao redefinir senha." });
+    }
+};
+
+
+module.exports = {
+    createUser, getUsers, loginUser, requestPasswordReset,
+    resetPassword,
+};
 
