@@ -13,15 +13,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int     @id @default(autoincrement())
-  email     String  @unique
-  password  String
-}
-model Tarefa {
-  id          Int      @id @default(autoincrement())
+model Usuario {
+  id          Int       @id @default(autoincrement())
   nome        String
-  descricao   String?
-  status      String?
-  data_criacao DateTime @default(now())
+  email       String    @unique
+  senha       String
+  criadoEm    DateTime  @default(now())
+  atualizadoEm DateTime @updatedAt
+  tarefas     Tarefa[]  @relation("UsuarioTarefas")
+}
+
+model Tarefa {
+  id           Int       @id @default(autoincrement())
+  nome         String
+  descricao    String?
+  status       String?
+  data_criacao DateTime  @default(now())
+  usuarioId    Int
+  usuario      Usuario   @relation(fields: [usuarioId], references: [id], name: "UsuarioTarefas")
+  tags         Tag[]     @relation("TarefaTags")
+}
+
+model Tag {
+  id           Int       @id @default(autoincrement())
+  nome         String    @unique
+  tarefas      Tarefa[]  @relation("TarefaTags")
 }
