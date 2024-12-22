@@ -8,16 +8,15 @@
                 <form @submit.prevent="handleLogin" class="mt-4">
                     <!-- username -->
                     <div class="mb-4">
-                        <label class="block mb-2 text-sm font-medium" for="username">Email</label>
-                        <PrimeInputText id="username" v-model="username" class="w-full"
-                            placeholder="Enter your email" />
+                        <label class="block mb-2 text-sm font-medium" for="email">Email</label>
+                        <PrimeInputText id="email" v-model="email" class="w-full" placeholder="Enter your email" />
                     </div>
 
                     <!-- Password -->
                     <div class="mb-4">
-                        <label class="block mb-2 text-sm font-medium" for="password">Password</label>
-                        <PrimePassword id="password" v-model="password" feedback="false" class="w-full p-inputtext-sm"
-                            placeholder="Enter your password" />
+                        <label class="block mb-2 text-sm font-medium" for="password">password</label>
+                        <PrimePassword id="password" v-model="password" :feedback="false" class="w-full p-inputtext-sm"
+                            placeholder="Enter your senha" />
                     </div>
 
                     <!-- Remember Me & Forgot Password -->
@@ -49,17 +48,18 @@
                 </p>
             </template>
         </PrimeCard>
-        <PrimeProgressSpinner v-if="loading"
+        <PrimeSpinner v-if="loading"
             class="w-8 h-8 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
     </div>
 </template>
 
 <script>
+import { loginUser } from "../../../Api";
 
 export default {
     data() {
         return {
-            username: "",
+            email: "",
             password: "",
             rememberMe: false,
             loading: false,
@@ -71,20 +71,14 @@ export default {
             this.loading = true;
 
             try {
-                // Simulate API call
-                await new Promise((resolve) => setTimeout(resolve, 1500));
-
-                // Simulated responses
-                if (!this.username) {
-                    this.showToast("User not found", "error");
-                } else if (this.username !== "test" || this.password !== "1234") {
-                    this.showToast("Invalid credentials", "warn");
-                } else {
-                    this.showToast("Login successful!", "success");
-                    this.showSuccessSpinner();
-                }
-            } catch {
-                this.showToast("An error occurred", "error");
+                //  API call
+                const response = await loginUser({ email: this.email, senha: this.password });
+                this.showToast("Login successful!", "success");
+                this.showSuccessSpinner();
+                // armazena o token no local storage
+                localStorage.setItem("token", response.data.token);
+            } catch (error) {
+                this.showToast(error.response.data.error || "Login failed!", "error");
             } finally {
                 this.loading = false;
             }
