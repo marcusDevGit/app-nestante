@@ -43,7 +43,9 @@
 
                 <p class="mt-6 text-sm text-center">
                     Don’t have an account?
-                    <a href="#" class="font-medium text-purple-500 hover:underline">Sign up</a>
+                    <router-link to="/register" class="font-medium text-purple-500 hover:underline">
+                        Sign up
+                    </router-link>
                 </p>
             </template>
         </PrimeCard>
