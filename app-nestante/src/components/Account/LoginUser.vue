@@ -25,7 +25,8 @@
                             <PrimeCheckbox inputId="remember" v-model="rememberMe" :value="true" />
                             <label for="remember" class="ml-2 text-sm">Remember me</label>
                         </div>
-                        <a href="#" class="text-sm text-purple-500 hover:underline">Forgot password?</a>
+                        <RouterLink to="/recover-password" class="text-sm text-purple-500 hover:underline">Forgot
+                            password?</RouterLink>
                     </div>
 
                     <!-- Submit Button -->
@@ -59,8 +60,8 @@ import { loginUser } from "../../../Api";
 export default {
     data() {
         return {
-            email: "",
-            password: "",
+            email: '',
+            password: '',
             rememberMe: false,
             loading: false,
             showSpinner: false,
@@ -76,9 +77,9 @@ export default {
                 this.showToast("Login successful!", "success");
                 this.showSuccessSpinner();
                 // armazena o token no local storage
-                localStorage.setItem("token", response.data.token);
+                localStorage.setItem("token", response.token);
             } catch (error) {
-                this.showToast(error.response.data.error || "Login failed!", "error");
+                this.showToast(error.response?.data?.error || "Login failed!", "error");
             } finally {
                 this.loading = false;
             }
