@@ -23,14 +23,14 @@
                     <!-- Password -->
                     <div>
                         <label class="block mb-2 text-sm font-medium" for="password">Password</label>
-                        <PrimePassword id="password" v-model="password" feedback="false" class="w-full"
+                        <PrimePassword id="password" v-model="password" :feedback="false" class="w-full"
                             placeholder="Enter your password" />
                     </div>
 
                     <!-- Confirm Password -->
                     <div>
                         <label class="block mb-2 text-sm font-medium" for="confirm-password">Confirm Password</label>
-                        <PrimePassword id="confirm-password" v-model="confirmPassword" feedback="false" class="w-full"
+                        <PrimePassword id="confirm-password" v-model="confirmPassword" :feedback="false" class="w-full"
                             placeholder="Confirm your password" />
                     </div>
 
@@ -55,13 +55,14 @@
 </template>
 
 <script>
+import { registerUser } from "../../../Api"
 export default {
     data() {
         return {
-            fullName: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
+            fullName: '',
+            email: '',
+            password: '',
+            confirmPassword: '',
             loading: false,
         };
     },
@@ -71,24 +72,29 @@ export default {
             this.loading = true;
 
             try {
-                // Simulate API call
-                await new Promise((resolve) => setTimeout(resolve, 1500));
-
-                // Basic validation
+                // basic validation
                 if (!this.fullName || !this.email || !this.password || !this.confirmPassword) {
-                    this.showToast("All fields are required", "warn");
+                    this.showToast("Todos os campos são obrigatórios", "warn");
                     return;
                 }
 
                 if (this.password !== this.confirmPassword) {
-                    this.showToast("Passwords do not match", "error");
+                    this.showToast("Senhas não confere", "error");
                     return;
                 }
 
-                // Simulate successful registration
-                this.showToast("Registration successful!", "success");
-            } catch {
-                this.showToast("An error occurred during registration", "error");
+                //API call
+                await registerUser({
+                    nome: this.fullName,
+                    email: this.email,
+                    senha: this.password,
+                });
+
+                // successful registration
+                this.showToast("Usuario registrado com sucesso!", "success");
+                this.$router.push("/login");
+            } catch (error) {
+                this.showToast(error.response?.data?.error || error.message || "Falha ao registrar usuario", "error");
             } finally {
                 this.loading = false;
             }
