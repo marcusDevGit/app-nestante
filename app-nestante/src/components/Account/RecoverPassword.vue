@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import { requestPasswordReset } from "../../../Api";
 export default {
     data() {
         return {
@@ -46,22 +47,19 @@ export default {
             this.loading = true;
 
             try {
-                // Simulate API call
-                await new Promise((resolve) => setTimeout(resolve, 1500));
-
-                // Basic validation
+                //validate email
                 if (!this.email) {
-                    this.showToast("Email is required", "warn");
+                    this.showToast("O email é obrigatorio", "warn");
                     return;
                 }
 
-                // Simulate successful password recovery
-                this.showToast(
-                    "If this email is registered, you'll receive a password recovery link",
-                    "info"
-                );
-            } catch {
-                this.showToast("An error occurred during the process", "error");
+                // API call
+                await requestPasswordReset(this.email);
+                this.showToast("O email de recuperação foi enviado com sucesso", "success");
+
+
+            } catch (error) {
+                this.showToast(error.response?.data?.error || "Falha ao enviar o e-mail de recuperação", "error");
             } finally {
                 this.loading = false;
             }
