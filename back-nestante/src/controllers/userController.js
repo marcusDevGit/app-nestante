@@ -84,7 +84,7 @@ const requestPasswordReset = async (req, res) => {
     const { email } = req.body;
 
     try {
-        console.log("iniciado processo de recuperação de senha para", email);
+        // console.log("iniciado processo de recuperação de senha para", email);
         const usuario = await prisma.usuario.findUnique({ where: { email } });
         if (!usuario) {
             console.log("Usuário não encontrado", email);
@@ -103,12 +103,21 @@ const requestPasswordReset = async (req, res) => {
 
         // link para redefinir a senha
         const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${encodeURIComponent(resetToken)}`;
-        console.log("Link para redefinir senha:", resetLink);
+        // console.log("Link para redefinir senha:", resetLink);
         //Enviar e-mail de recuperação
         await sendEmail(
             email,
             "Recuperação de Senha",
-            `Você solicitou a recuperação de senha. Use o link abaixo para redefinir sua senha. O link expira em 1 hora.\n\n${resetLink}`
+            `<p>Olá,</p>
+            <p>Você solicitou a recuperação de senha. Clique no link abaixo para redefinir sua senha:</p>
+            <p><a href="${resetLink}" target="_blank">Redefinir Senha</a></p>
+            <p>Este link expira em 1 hora.</p>
+            <p>Se você não solicitou a redefinição de senha, ignore este e-mail.</p>
+            <p>Atenciosamente,</p>
+            <p>Equipe de Suporte</p>
+            <p>Equipe Nestante App</p>
+
+            `
         );
 
         res.status(200).json({ message: "E-mail de recuperação enviado com sucesso!" });
