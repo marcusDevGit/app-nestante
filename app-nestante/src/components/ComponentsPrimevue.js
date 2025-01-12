@@ -5,6 +5,9 @@ import Checkbox from 'primevue/checkbox';
 import Card from 'primevue/card';
 import ProgressSpinner from 'primevue/progressspinner';
 import Toast from 'primevue/toast';
+import Column from 'primevue/column';
+import DataTable from 'primevue/datatable';
+import Dialog from 'primevue/dialog';
 
 export default {
     install: (app) => {
@@ -15,5 +18,8 @@ export default {
         app.component('PrimeCard', Card);
         app.component('PrimeSpinner', ProgressSpinner);
         app.component('PrimeToast', Toast);
+        app.component('PrimeColumn', Column);
+        app.component('PrimeDataTable', DataTable);
+        app.component('PrimeDialog', Dialog);
     }
 };
